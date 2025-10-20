@@ -2,8 +2,9 @@
 
 from fastapi import FastAPI
 from app.database import engine, Base
-from app.routes import books
+from app.routes import books , users
 import uvicorn
+from app import models
 
 # Create all database tables
 Base.metadata.create_all(bind=engine)
@@ -17,6 +18,7 @@ app = FastAPI(
 
 # Include book routes
 app.include_router(books.router)
+app.include_router(users.router)
 
 # Root route
 @app.get("/")

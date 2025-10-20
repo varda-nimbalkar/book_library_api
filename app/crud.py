@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app import models, schemas
+from app.utils.auth import hash_password
 
 # Create a new book
 def create_book(db: Session, book: schemas.BookCreate):
@@ -66,3 +67,16 @@ def search_books(db: Session, query: str):
             models.Book.author.ilike(f"%{query}%")
         )
     ).all()
+
+
+def create_user(db: Session, user: schemas.UserCreate):
+    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if existing_user:
+        return None  # email already registered
+    
+    hashed_pw = hash_password(user.password)
+    db_user = models.User(email=user.email, hashed_password=hashed_pw, role=user.role)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user

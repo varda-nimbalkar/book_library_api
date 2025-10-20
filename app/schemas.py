@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, EmailStr, Field, constr
+from typing import Optional , Annotated
+import re
 
 # Schema for creating a book
 class BookCreate(BaseModel):
@@ -37,3 +38,29 @@ class BookOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    role: Optional[str] = "Member"
+    password: Annotated[
+        str,
+        Field(
+            min_length=8,
+            pattern=re.compile(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$"),
+            description="Password must contain at least one uppercase, one lowercase, and one number",
+        ),
+    ]
+
+
+class UserOut(BaseModel):
+    id:int
+    email:str
+    role:str
+    is_active:bool
+
+
+    class Config:
+        from_attributes=True
+    
